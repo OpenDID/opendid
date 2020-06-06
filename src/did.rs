@@ -57,22 +57,27 @@ impl DIDMethod {
     }
 }
 
+// did                = "did:" method-name ":" method-specific-id
+// method-name        = 1*method-char
+// method-char        = %x61-7A / DIGIT
+// method-specific-id = *( ":" *idchar ) 1*idchar
+// idchar             = ALPHA / DIGIT / "." / "-" / "_"
 #[derive(Debug, Clone)]
 pub struct DID {
     pub method: String,
-    pub addr: String,
+    pub id: String,
 }
 
 impl DID {
 
-    pub fn new(method: &str, addr: &str) -> Result<Self, DIDError> {
+    pub fn new(method: &str, id: &str) -> Result<Self, DIDError> {
         let did_method = DID_METHOD_HASHMAP.get(method);
         if did_method.is_none() {
-            return Err(DIDError::FormatError(format!("DID method not found: did:{}:{}", method, addr)));
+            return Err(DIDError::FormatError(format!("DID method not found: did:{}:{}", method, id)));
         }
         Ok(DID {
             method: method.into(),
-            addr: addr.into(),
+            id: id.into(),
         })
     }
 
@@ -81,22 +86,35 @@ impl DID {
             return Err(DIDError::FormatError(format!("DID not starts with: 'did:', {}", did)));
         }
         let method_and_addr = did.chars().skip(4).collect::<String>();
-        let splited_method_and_addr = method_and_addr.split(':').collect::<Vec<_>>();
-        if splited_method_and_addr.len() != 2 {
-            return Err(DIDError::FormatError(format!("DID format error: {}", did)));
+
+        let mut method = String::new();
+        let mut id = String::new();
+        let mut has_c = false;
+        for c in method_and_addr.chars() {
+            if has_c {
+                id.push(c);
+            } else if c == ':' {
+                has_c = true;
+            } else {
+                method.push(c);
+            }
         }
-        let method = splited_method_and_addr[0];
-        let addr = splited_method_and_addr[1];
-        Self::new(method, addr)
+        Self::new(&method, &id)
     }
     
     pub fn to_string(&self) -> String {
-        format!("did:{}:{}", self.method, self.addr)
+        format!("did:{}:{}", self.method, self.id)
     }
 }
 
+// did-url            = did path-abempty [ "?" did-query ]
+//                      [ "#" fragment ]
+// did-query          = param *( "&" param )
+// param              = param-name "=" param-value
+// param-name         = 1*pchar
+// param-value        = *pchar
 #[derive(Debug, Clone)]
-pub struct DIDKey {
+pub struct DIDKey { // TODO ...
     pub did: DID,
     pub key: String,
 }
