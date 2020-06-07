@@ -148,7 +148,7 @@ fn test_did_new() {
 
 #[test]
 fn test_did_parse() {
-    assert_eq!("did:example:test_addr".to_owned(), DID::parse("did:example:test_addr").unwrap().to_string());
-    assert_eq!(true, DID::parse("did:example_not_exists:test_addr").is_err());
-    assert_eq!(true, DID::parse("ddd:example_not_exists:test_addr").is_err());
+    assert_eq!("did:example:test_addr".to_owned(), Did::parse("did:example:test_addr").unwrap().to_string());
+    assert_eq!(true, Did::parse("did:example_not_exists:test_addr").is_err());
+    assert_eq!(true, Did::parse("ddd:example_not_exists:test_addr").is_err());
 }
