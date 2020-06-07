@@ -9,11 +9,12 @@ DID: did:example:xxxxxxxxxxxxxxxxxxxxxx#key-1
 Version: 0.0.1
 Agent: OpenDID v0.0.0
 Hash: SHA256
+Type: Plain/Base64
 Comment: comments
 - line 2 ....
 - line 3 ....
 
-xxxxx xxxxx xxxxx xxxxx xxxxx ...
+base64 base64 base64 base64 base64 ...
 -----END DID SIGNATURE-----
 ```
 
