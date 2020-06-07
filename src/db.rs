@@ -43,7 +43,7 @@ impl Db {
     pub fn new(file: &str) -> XResult<Self> {
         let path = resolve_file_path(file);
         let conn = Connection::open(path)?;
-        Ok(Db { file: file.into(), conn: conn, })
+        Ok(Db { file: file.into(), conn, })
     }
 
     pub fn init(&self) -> XResult<()> {
@@ -54,7 +54,7 @@ impl Db {
             let tbl_name: String = row.get(2)?;
             Ok(tbl_name)
         })?;
-        if let None = dbentry_iter.next() {
+        if dbentry_iter.next().is_none() {
             self.conn.execute(
                 r##"CREATE TABLE entry (
                     id              INTEGER PRIMARY KEY,
@@ -132,12 +132,10 @@ impl Db {
             })
         })?;
 
-        let mut cnt = 0;
         let mut ret = vec![];
-        for e in dbentry_iter {
-            ret.push(e?);
-            cnt += 1;
+        for (cnt, e) in dbentry_iter.enumerate() {
             if limit != 0 && cnt >= limit { break; }
+            ret.push(e?);
         }
         Ok(ret)
     }

@@ -491,6 +491,7 @@ dependencies = [
 name = "opendid"
 version = "0.0.0"
 dependencies = [
+ "base64",
  "clap",
  "lazy_static",
  "quick-error",

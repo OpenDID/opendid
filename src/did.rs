@@ -102,7 +102,7 @@ impl Did {
         Self::new(&method, &id)
     }
     
-    pub fn to_string(&self) -> String {
+    pub fn as_string(&self) -> String {
         format!("did:{}:{}", self.method, self.id)
     }
 }
@@ -135,20 +135,20 @@ impl DidKey {
         Ok(Self::new(did, key))
     }
 
-    pub fn to_string(&self) -> String {
-        format!("{}#{}", self.did.to_string(), self.key)
+    pub fn as_string(&self) -> String {
+        format!("{}#{}", self.did.as_string(), self.key)
     }
 }
 
 #[test]
 fn test_did_new() {
-    assert_eq!("did:example:test_addr".to_owned(), Did::new("example", "test_addr").unwrap().to_string());
+    assert_eq!("did:example:test_addr".to_owned(), Did::new("example", "test_addr").unwrap().as_string());
     assert_eq!(true, Did::new("example_not_exists", "test_addr").is_err());
 }
 
 #[test]
 fn test_did_parse() {
-    assert_eq!("did:example:test_addr".to_owned(), Did::parse("did:example:test_addr").unwrap().to_string());
+    assert_eq!("did:example:test_addr".to_owned(), Did::parse("did:example:test_addr").unwrap().as_string());
     assert_eq!(true, Did::parse("did:example_not_exists:test_addr").is_err());
     assert_eq!(true, Did::parse("ddd:example_not_exists:test_addr").is_err());
 }

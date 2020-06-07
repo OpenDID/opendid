@@ -16,4 +16,37 @@ pub use signed_message_parser::*;
 
 fn main() {
     println!("OpenDID cli!");
+
+    let m = DidSignedMessage::parse(r##"
+-----BEGIN DID SIGNED MESSAGE-----
+text message OR based64 message
+
+hello world
+-----BEGIN DID SIGNATURE------
+DID: did:example:xxxxxxxxxxxxxxxxxxxxxx#key-1
+Version: 0.0.1
+Agent: OpenDID v0.0.0
+Hash: SHA256
+Comment: comments
+- line 2 ....
+- line 3 ....
+
+aGVsb G8gd 29ybG QgaGV sbG8g d29yb GQhI SEhI SE=
+-----END DID SIGNATURE-----
+    "##).unwrap();
+
+    for ln in m.raw_messages {
+        println!("{}", ln);
+    }
+    println!("=========");
+    for h in m.signed_headers {
+        println!("::: {} -> {}", h.key, h.value);
+    }
+    println!("---------");
+    for ln in m.raw_signatures {
+        println!("{}", ln);
+    }
+    println!("---------");
+    println!("{:?}", m.signed_signature);
+    println!("{}", String::from_utf8_lossy(&m.signed_signature.unwrap()));
 }
