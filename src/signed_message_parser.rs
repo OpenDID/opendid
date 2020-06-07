@@ -1,4 +1,5 @@
 // use crate::util::XResult;
+use crate::util::decode_block_base64;
 
 const FIVE_MINUS: &str = "-----";
 const BEGIN_DID_MESSAGE: &str = "BEGIN DID SIGNED MESSAGE";
@@ -64,17 +65,7 @@ impl DidSignedMessage {
         }
 
         let message = Some(vec![]); // TODO
-
-        let mut raw_signature_b64 = String::new();
-        for ln in &raw_signatures {
-            for c in ln.chars() {
-                match c {
-                    ' ' | '\t' | '\r' | '\n' => (),
-                    _ => raw_signature_b64.push(c),
-                }
-            }
-        }
-        let signed_signature = base64::decode(raw_signature_b64).ok();
+        let signed_signature = decode_block_base64(&raw_signatures.join(""));
 
         Some(Self {
             message,
@@ -83,6 +74,17 @@ impl DidSignedMessage {
             signed_signature,
             raw_signatures,
         })
+    }
+
+    pub fn find_first_header(&self, key: &str) -> Option<String> {
+        self.find_header(key).iter().next().map(|s| s.to_owned())
+    }
+
+    pub fn find_header(&self, key: &str) -> Vec<String> {
+        self.signed_headers.iter()
+            .filter(|h| h.key == key)
+            .map(|h| h.value.clone())
+            .collect::<Vec<_>>()
     }
 }
 

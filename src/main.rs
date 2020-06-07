@@ -11,6 +11,7 @@ mod signed_message_parser;
 pub use err::*;
 pub use did::*;
 pub use db::*;
+pub use util::*;
 pub use did_resolver::*;
 pub use signed_message_parser::*;
 
@@ -31,7 +32,11 @@ Comment: comments
 - line 2 ....
 - line 3 ....
 
-aGVsb G8gd 29ybG QgaGV sbG8g d29yb GQhI SEhI SE=
+YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh
+YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh
+YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh
+YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh
+YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW E=
 -----END DID SIGNATURE-----
     "##).unwrap();
 
@@ -49,4 +54,7 @@ aGVsb G8gd 29ybG QgaGV sbG8g d29yb GQhI SEhI SE=
     println!("---------");
     println!("{:?}", m.signed_signature);
     println!("{}", String::from_utf8_lossy(&m.signed_signature.unwrap()));
+
+    println!();
+    println!();
 }
