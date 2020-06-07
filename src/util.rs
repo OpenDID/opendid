@@ -1,5 +1,7 @@
 use std::env;
 
+pub type XResult<T> = Result<T, Box<dyn std::error::Error>>;
+
 pub fn get_home_str() -> Option<String> {
     env::var("HOME").ok()
 }

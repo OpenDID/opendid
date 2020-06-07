@@ -1,6 +1,6 @@
-use rusqlite::{params, Connection, Result};
+use rusqlite::{params, Connection};
 use time::Timespec;
-use crate::util::resolve_file_path;
+use crate::util::{ resolve_file_path, XResult, };
 
 const DEFAULT_DB: &str = "~/.opendid.db";
 
@@ -36,17 +36,17 @@ pub struct Db {
 
 impl Db {
 
-    pub fn new_default() -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn new_default() -> XResult<Self> {
         Self::new(DEFAULT_DB)
     }
 
-    pub fn new(file: &str) -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn new(file: &str) -> XResult<Self> {
         let path = resolve_file_path(file);
         let conn = Connection::open(path)?;
         Ok(Db { file: file.into(), conn: conn, })
     }
 
-    pub fn init(&self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn init(&self) -> XResult<()> {
         let mut stmt = self.conn.prepare(
             "select type, name, tbl_name, rootpage, sql from sqlite_master where tbl_name = ?1"
         )?;
@@ -70,7 +70,7 @@ impl Db {
         Ok(())
     }
 
-    pub fn insert(&self, entry: &DbEntry) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn insert(&self, entry: &DbEntry) -> XResult<()> {
         self.conn.execute(
             "INSERT INTO entry (time_created, time_modified, ty, key, value) values (?1, ?2, ?3, ?4, ?5)",
             params![time::get_time(), time::get_time(), entry.ty, entry.key, entry.value]
@@ -78,7 +78,7 @@ impl Db {
         Ok(())
     }
 
-    pub fn delete(&self, id: i32) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn delete(&self, id: i32) -> XResult<()> {
         self.conn.execute(
             "DELETE FROM entry where id = ?1",
             params![id]
@@ -86,7 +86,7 @@ impl Db {
         Ok(())
     }
 
-    pub fn find_by_id(&self, id: i32) -> Result<Option<DbEntry>, Box<dyn std::error::Error>> {
+    pub fn find_by_id(&self, id: i32) -> XResult<Option<DbEntry>> {
         let mut stmt = self.conn.prepare(
             "SELECT id, time_created, time_modified, ty, key, value FROM entry WHERE id = ?1"
         )?;
@@ -108,7 +108,16 @@ impl Db {
         }
     }
 
-    pub fn find_by_key(&self, ty: &str, key: &str) -> Result<Vec<DbEntry>, Box<dyn std::error::Error>> {
+    pub fn find_first_by_key(&self, ty: &str, key: &str) -> XResult<Option<DbEntry>> {
+        let mut entries = self.find_by_key_with_limit(ty, key, 1_usize)?;
+        Ok(entries.pop())
+    }
+
+    pub fn find_by_key(&self, ty: &str, key: &str) -> XResult<Vec<DbEntry>> {
+        self.find_by_key_with_limit(ty, key, 0_usize)
+    }
+
+    pub fn find_by_key_with_limit(&self, ty: &str, key: &str, limit: usize) -> XResult<Vec<DbEntry>> {
         let mut stmt = self.conn.prepare(
             "SELECT id, time_created, time_modified, type, key, value FROM entry WHERE type =?1 and key = ?2"
         )?;
@@ -123,9 +132,12 @@ impl Db {
             })
         })?;
 
+        let mut cnt = 0;
         let mut ret = vec![];
         for e in dbentry_iter {
             ret.push(e?);
+            cnt += 1;
+            if limit != 0 && cnt >= limit { break; }
         }
         Ok(ret)
     }

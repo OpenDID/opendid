@@ -1,0 +1,37 @@
+{
+  "@context": "https://w3id.org/did/v1",
+  "id": "did:ccp:3nBPSZU1q6mmxha5Jbg8NcRNGGNt",
+  "version": 1,
+  "created": "2020-06-07T20:06:13.068Z",
+  "updated": "2020-06-07T20:06:13.068Z",
+  "publicKey": [
+    {
+      "id": "did:ccp:3nBPSZU1q6mmxha5Jbg8NcRNGGNt#keys-1",
+      "type": "Secp256k1",
+      "publicKeyHex": "04d9922791d35e84efce632ba1dec2a4cfc58f4516a204dd66efa8241d70869d4a51a8eaef88739ef0d05af535108c583c8ee702f9e76edb595a13ac8b0a55a98f"
+    },
+    {
+      "id": "did:ccp:3nBPSZU1q6mmxha5Jbg8NcRNGGNt#keys-2",
+      "type": "Secp256k1",
+      "publicKeyHex": "04187aa0de0edda4630f6b56666bd5fe3216ff4392e883f62dddd4eaaa5d13fd0ab575fb118a19d2cdb72d21e3e97cac5c5822fcfc1c2e5885760a3e6269682a0b"
+    }
+  ],
+  "authentication": [
+    "did:ccp:3nBPSZU1q6mmxha5Jbg8NcRNGGNt#keys-1"
+  ],
+  "recovery": [
+    "did:ccp:3nBPSZU1q6mmxha5Jbg8NcRNGGNt#keys-2"
+  ],
+  "service": [
+    {
+      "id": "did:ccp:3nBPSZU1q6mmxha5Jbg8NcRNGGNt#resolver",
+      "type": "DIDResolve",
+      "serviceEndpoint": "https://did.baidu.com"
+    }
+  ],
+  "proof": {
+    "type": "Secp256k1",
+    "creator": "did:ccp:3nBPSZU1q6mmxha5Jbg8NcRNGGNt#keys-1",
+    "signatureValue": "3045022100da8a2f90d8a107da413a05be2fb7cb92c833d217e26f51e2dd7ca22e5495141b02200c69f4b3aa46d481c0955dc936c2f7b9432f189f4fc527b93d16bd0b205a588c"
+  }
+}
