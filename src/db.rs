@@ -18,12 +18,12 @@ impl DbEntry {
 
     pub fn new(ty: &str, key: &str, value: &str) -> Self {
         Self {
-            id: Default::default(),
-            time_created: time::get_time(),
+            id:            Default::default(),
+            time_created:  time::get_time(),
             time_modified: time::get_time(),
-            ty: ty.into(),
-            key: key.into(),
-            value: value.into(),
+            ty:            ty.into(),
+            key:           key.into(),
+            value:         value.into(),
         }
     }
 }
