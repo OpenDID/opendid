@@ -1,26 +1,26 @@
 
-use crate::err::DIDError;
+use crate::err::DidError;
 use std::collections::HashMap;
 
 // DID method registry: https://w3c-ccg.github.io/did-method-registry/
 lazy_static! {
-    static ref DID_METHOD_HASHMAP: HashMap<&'static str, DIDMethod> = {
+    static ref DID_METHOD_HASHMAP: HashMap<&'static str, DidMethod> = {
         let methods = vec![
-            DIDMethod::new("abt", DIDStatus::PROVISIONAL, "ABT Network",
+            DidMethod::new("abt", DidStatus::PROVISIONAL, "ABT Network",
                             ["ArcBlock"].to_vec(),
                             "ABT DID Method", "https://arcblock.github.io/abt-did-spec/"),
-            DIDMethod::new("btcr", DIDStatus::PROVISIONAL, "Bitcoin",
+            DidMethod::new("btcr", DidStatus::PROVISIONAL, "Bitcoin",
                             ["Christopher Allen", "Ryan Grant", "Kim Hamilton Duffy"].to_vec(),
                             "BTCR DID Method", "https://w3c-ccg.github.io/didm-btcr"),
-            DIDMethod::new("stack", DIDStatus::PROVISIONAL, "Bitcoin",
+            DidMethod::new("stack", DidStatus::PROVISIONAL, "Bitcoin",
                             ["Jude Nelson"].to_vec(),
                             "Blockstack DID Method", "https://github.com/blockstack/blockstack-core/blob/stacks-1.0/docs/blockstack-did-spec.md"),
             // ...
-            DIDMethod::new("example", DIDStatus::PROVISIONAL, "DID Specification",
+            DidMethod::new("example", DidStatus::PROVISIONAL, "DID Specification",
                             ["W3C Credentials Community Group"].to_vec(),
                             "DID Specification", "https://w3c-ccg.github.io/did-spec/"),
             // ...
-            DIDMethod::new("ccp", DIDStatus::PROVISIONAL, "Quorum",
+            DidMethod::new("ccp", DidStatus::PROVISIONAL, "Quorum",
                             ["Baidu, Inc."].to_vec(),
                             "Cloud DID Method", "https://did.baidu.com/did-spec/"),
         ];
@@ -33,25 +33,25 @@ lazy_static! {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub enum DIDStatus {
+pub enum DidStatus {
     PROVISIONAL,
     DEPRECATED,
 }
 
 #[derive(Debug, Clone)]
-pub struct DIDMethod {
+pub struct DidMethod {
     pub method: &'static str,
-    pub status: DIDStatus,
+    pub status: DidStatus,
     pub dlt_or_network: &'static str,
     pub authors: Vec<&'static str>,
     pub link_text: &'static str,
     pub link: &'static str,
 }
 
-impl DIDMethod {
-    pub fn new(method: &'static str, status: DIDStatus, dlt_or_network: &'static str, authors: Vec<&'static str>,
+impl DidMethod {
+    pub fn new(method: &'static str, status: DidStatus, dlt_or_network: &'static str, authors: Vec<&'static str>,
         link_text: &'static str, link: &'static str) -> Self {
-        DIDMethod {
+        DidMethod {
             method, status, dlt_or_network, authors, link_text, link,
         }
     }
@@ -63,27 +63,27 @@ impl DIDMethod {
 // method-specific-id = *( ":" *idchar ) 1*idchar
 // idchar             = ALPHA / DIGIT / "." / "-" / "_"
 #[derive(Debug, Clone)]
-pub struct DID {
+pub struct Did {
     pub method: String,
     pub id: String,
 }
 
-impl DID {
+impl Did {
 
-    pub fn new(method: &str, id: &str) -> Result<Self, DIDError> {
+    pub fn new(method: &str, id: &str) -> Result<Self, DidError> {
         let did_method = DID_METHOD_HASHMAP.get(method);
         if did_method.is_none() {
-            return Err(DIDError::FormatError(format!("DID method not found: did:{}:{}", method, id)));
+            return Err(DidError::FormatError(format!("DID method not found: did:{}:{}", method, id)));
         }
-        Ok(DID {
+        Ok(Did {
             method: method.into(),
             id: id.into(),
         })
     }
 
-    pub fn parse(did: &str) -> Result<Self, DIDError> {
+    pub fn parse(did: &str) -> Result<Self, DidError> {
         if !did.starts_with("did:") {
-            return Err(DIDError::FormatError(format!("DID not starts with: 'did:', {}", did)));
+            return Err(DidError::FormatError(format!("DID not starts with: 'did:', {}", did)));
         }
         let method_and_addr = did.chars().skip(4).collect::<String>();
 
@@ -114,23 +114,23 @@ impl DID {
 // param-name         = 1*pchar
 // param-value        = *pchar
 #[derive(Debug, Clone)]
-pub struct DIDKey { // TODO ...
-    pub did: DID,
+pub struct DidKey { // TODO ...
+    pub did: Did,
     pub key: String,
 }
 
-impl DIDKey {
+impl DidKey {
 
-    pub fn new(did: DID, key: &str) -> Self {
-        DIDKey { did, key: key.into(), }
+    pub fn new(did: Did, key: &str) -> Self {
+        DidKey { did, key: key.into(), }
     }
 
-    pub fn parse(did_key: &str) -> Result<Self, DIDError> {
+    pub fn parse(did_key: &str) -> Result<Self, DidError> {
         let did_and_key = did_key.split('#').collect::<Vec<_>>();
         if did_and_key.len() != 2 {
-            return Err(DIDError::FormatError(format!("DIDKey format error: {}", did_key)));
+            return Err(DidError::FormatError(format!("DIDKey format error: {}", did_key)));
         }
-        let did = DID::parse(did_and_key[0])?;
+        let did = Did::parse(did_and_key[0])?;
         let key = did_and_key[1];
         Ok(Self::new(did, key))
     }
@@ -142,8 +142,8 @@ impl DIDKey {
 
 #[test]
 fn test_did_new() {
-    assert_eq!("did:example:test_addr".to_owned(), DID::new("example", "test_addr").unwrap().to_string());
-    assert_eq!(true, DID::new("example_not_exists", "test_addr").is_err());
+    assert_eq!("did:example:test_addr".to_owned(), Did::new("example", "test_addr").unwrap().to_string());
+    assert_eq!(true, Did::new("example_not_exists", "test_addr").is_err());
 }
 
 #[test]
