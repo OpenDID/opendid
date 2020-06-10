@@ -6,6 +6,13 @@ const BEGIN_DID_MESSAGE: &str = "BEGIN DID SIGNED MESSAGE";
 const BEGIN_DID_SIGNATURE: &str = "BEGIN DID SIGNATURE";
 const END_DID_SIGNATURE: &str = "END DID SIGNATURE";
 
+#[derive(Debug, Clone, Copy)]
+pub enum MessageType {
+    Base64,
+    PlainText,
+    Unknown,
+}
+
 #[derive(Debug)]
 pub struct Header {
     pub key: String,
@@ -14,6 +21,7 @@ pub struct Header {
 
 #[derive(Debug)]
 pub struct DidSignedMessage {
+    pub ty: MessageType,
     pub message: Option<Vec<u8>>,
     pub raw_messages: Vec<String>,
     pub signed_headers: Vec<Header>,
@@ -64,10 +72,25 @@ impl DidSignedMessage {
             }
         }
 
-        let message = Some(vec![]); // TODO
+        let type_header = find_last_header(&signed_headers, "type");
+        let ty = match type_header {
+            None => MessageType::PlainText, // default type is plain
+            Some(header) => match header.value.to_ascii_lowercase().as_str() {
+                "base64" => MessageType::Base64,
+                "plain" | "text" => MessageType::PlainText,
+                _ => MessageType::Unknown,
+            },
+        };
+        let message = match ty {
+            MessageType::PlainText => Some(raw_messages.join("\n").as_bytes().to_vec()),
+            MessageType::Base64 => decode_block_base64(&raw_messages.join("")),
+            MessageType::Unknown => None,
+        };
+
         let signed_signature = decode_block_base64(&raw_signatures.join(""));
 
         Some(Self {
+            ty,
             message,
             raw_messages,
             signed_headers,
@@ -86,6 +109,17 @@ impl DidSignedMessage {
             .map(|h| h.value.clone())
             .collect::<Vec<_>>()
     }
+}
+
+fn find_last_header<'a>(signed_headers: &'a [Header], header: & str) -> Option<&'a Header> {
+    let mut ret = None;
+    let header_ascii_lowercase = header.to_ascii_lowercase();
+    for h in signed_headers {
+        if h.key.to_ascii_lowercase() == header_ascii_lowercase {
+            ret = Some(h);
+        }
+    }
+    ret
 }
 
 fn parse_header_line(ln: &str, s_lines_iter: &mut std::iter::Peekable<std::str::Lines<'_>>) -> Header {
