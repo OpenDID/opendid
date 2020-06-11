@@ -15,7 +15,7 @@ impl Command for CommandTest {
         "test"
     }
 
-    fn run(&self, _arg_matches: &ArgMatches) -> XResult<()> {
+    fn run(&self, _arg_matches: &ArgMatches, _sub_arg_matches: &ArgMatches) -> XResult<()> {
         println!("This is test command!");
         Ok(())
     }

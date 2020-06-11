@@ -7,5 +7,5 @@ pub trait Command {
 
     fn name(&self) -> &str;
 
-    fn run(&self, arg_matches: &ArgMatches) -> XResult<()>;
+    fn run(&self, arg_matches: &ArgMatches, sub_arg_matches: &ArgMatches) -> XResult<()>;
 }

@@ -11,7 +11,7 @@ mod signed_message_parser;
 mod cmd_default;
 mod cmd_test;
 
-use clap::App;
+use clap::{ App, Arg, };
 
 pub use err::*;
 pub use util::*;
@@ -29,7 +29,14 @@ fn main() -> XResult<()> {
     ];
     let mut app = App::new("OpenDID")
                     .version(env!("CARGO_PKG_VERSION"))
-                    .about("A DID command line tool");
+                    .about("A DID command line tool")
+                    .arg(
+                        Arg::with_name("verbose")
+                        .long("verbose")
+                        .short("v")
+                        .multiple(true)
+                        .help("Show verbose info")
+                    );
     for command in &commands {
         if let Some(subcommand) = command.subcommand() {
             app = app.subcommand(subcommand);
@@ -39,9 +46,9 @@ fn main() -> XResult<()> {
 
     for command in &commands {
         if let Some(sub_cmd_matches) = matches.subcommand_matches(command.name()) {
-            return command.run(sub_cmd_matches);
+            return command.run(&matches, sub_cmd_matches);
         }
     }
 
-    CommandDefault{}.run(&matches)
+    CommandDefault{}.run(&matches, &matches)
 }

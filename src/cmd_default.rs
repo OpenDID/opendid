@@ -16,7 +16,9 @@ impl Command for CommandDefault {
         ""
     }
 
-    fn run(&self, _arg_matches: &ArgMatches) -> XResult<()> {
+    fn run(&self, arg_matches: &ArgMatches, _: &ArgMatches) -> XResult<()> {
+        let verbose_count = arg_matches.occurrences_of("verbose");
+        println!("Verbose count: {}", verbose_count);
 
         let m = DidSignedMessage::parse(r##"
 -----BEGIN DID SIGNED MESSAGE-----
