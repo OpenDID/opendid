@@ -5,58 +5,43 @@ mod err;
 mod util;
 mod did;
 mod db;
+mod cmd;
 mod did_resolver;
 mod signed_message_parser;
+mod cmd_default;
+mod cmd_test;
+
+use clap::App;
 
 pub use err::*;
+pub use util::*;
 pub use did::*;
 pub use db::*;
-pub use util::*;
+pub use cmd::*;
 pub use did_resolver::*;
 pub use signed_message_parser::*;
+use cmd_default::*;
+use cmd_test::*;
 
-fn main() {
-    println!("OpenDID cli!");
-
-    let m = DidSignedMessage::parse(r##"
------BEGIN DID SIGNED MESSAGE-----
-text message OR based64 message
-
-hello world
------BEGIN DID SIGNATURE------
-DID: did:example:xxxxxxxxxxxxxxxxxxxxxx#key-1
-Version: 0.0.1
-Agent: OpenDID v0.0.0
-Hash: SHA256
-Comment: comments
-- line 2 ....
-- line 3 ....
-
-YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh
-YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh
-YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh
-YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW FhYWFh
-YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW E=
------END DID SIGNATURE-----
-    "##).unwrap();
-
-    for ln in &m.raw_messages {
-        println!("{}", ln);
+fn main() -> XResult<()> {
+    let commands = vec![
+        CommandTest{},    
+    ];
+    let mut app = App::new("OpenDID")
+                    .version(env!("CARGO_PKG_VERSION"))
+                    .about("A DID command line tool");
+    for command in &commands {
+        if let Some(subcommand) = command.subcommand() {
+            app = app.subcommand(subcommand);
+        }
     }
-    println!("=========");
-    for h in &m.signed_headers {
-        println!("::: {} -> {}", h.key, h.value);
-    }
-    println!("---------");
-    for ln in &m.raw_signatures {
-        println!("{}", ln);
-    }
-    println!("---------");
-    println!("{:?}", m.signed_signature);
-    println!("{}", String::from_utf8_lossy(&m.signed_signature.clone().unwrap()));
+    let matches = app.get_matches();
 
-    println!();
-    println!();
+    for command in &commands {
+        if let Some(sub_cmd_matches) = matches.subcommand_matches(command.name()) {
+            return command.run(sub_cmd_matches);
+        }
+    }
 
-    println!("{}", m.as_string());
+    CommandDefault{}.run(&matches)
 }
