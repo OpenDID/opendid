@@ -1,6 +1,7 @@
 // use crate::util::XResult;
-use crate::util::decode_block_base64;
+use crate::util::{ encode_block_base64, decode_block_base64, };
 
+const NEW_LINE: &str = "\n";
 const FIVE_MINUS: &str = "-----";
 const BEGIN_DID_MESSAGE: &str = "BEGIN DID SIGNED MESSAGE";
 const BEGIN_DID_SIGNATURE: &str = "BEGIN DID SIGNATURE";
@@ -108,6 +109,43 @@ impl DidSignedMessage {
             .filter(|h| h.key == key)
             .map(|h| h.value.clone())
             .collect::<Vec<_>>()
+    }
+
+    pub fn as_string(&self) -> String {
+        let mut ret = String::new();
+        ret.push_str(FIVE_MINUS);
+        ret.push_str(BEGIN_DID_MESSAGE);
+        ret.push_str(FIVE_MINUS);
+        ret.push_str(NEW_LINE);
+
+        for m in &self.raw_messages {
+            ret.push_str(m);
+            ret.push_str(NEW_LINE);
+        }
+
+        ret.push_str(FIVE_MINUS);
+        ret.push_str(BEGIN_DID_SIGNATURE);
+        ret.push_str(FIVE_MINUS);
+        ret.push_str(NEW_LINE);
+
+        for h in &self.signed_headers {
+            ret.push_str(&h.key);
+            ret.push_str(": ");
+            ret.push_str(&h.value.split('\n').collect::<Vec<_>>().join("\n- "));
+            ret.push_str(NEW_LINE);
+        }
+        ret.push_str(NEW_LINE);
+        if let Some(signed_signature) = &self.signed_signature {
+            ret.push_str(&encode_block_base64(&signed_signature[..], 0, 0));
+            ret.push_str(NEW_LINE);
+        }
+
+        ret.push_str(FIVE_MINUS);
+        ret.push_str(END_DID_SIGNATURE);
+        ret.push_str(FIVE_MINUS);
+        ret.push_str(NEW_LINE);
+
+        ret
     }
 }
 

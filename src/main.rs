@@ -40,21 +40,23 @@ YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW E=
 -----END DID SIGNATURE-----
     "##).unwrap();
 
-    for ln in m.raw_messages {
+    for ln in &m.raw_messages {
         println!("{}", ln);
     }
     println!("=========");
-    for h in m.signed_headers {
+    for h in &m.signed_headers {
         println!("::: {} -> {}", h.key, h.value);
     }
     println!("---------");
-    for ln in m.raw_signatures {
+    for ln in &m.raw_signatures {
         println!("{}", ln);
     }
     println!("---------");
     println!("{:?}", m.signed_signature);
-    println!("{}", String::from_utf8_lossy(&m.signed_signature.unwrap()));
+    println!("{}", String::from_utf8_lossy(&m.signed_signature.clone().unwrap()));
 
     println!();
     println!();
+
+    println!("{}", m.as_string());
 }
