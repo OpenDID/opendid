@@ -53,3 +53,7 @@ pub fn encode_block_base64(b: &[u8], block_len: usize, block_count: usize) -> St
     ret
 }
 
+#[test]
+fn test_get_home_str() {
+    assert_eq!(true, get_home_str().is_some());
+}
