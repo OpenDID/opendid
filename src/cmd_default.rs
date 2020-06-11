@@ -18,7 +18,7 @@ impl Command for CommandDefault {
 
     fn run(&self, _arg_matches: &ArgMatches) -> XResult<()> {
 
-    let m = DidSignedMessage::parse(r##"
+        let m = DidSignedMessage::parse(r##"
 -----BEGIN DID SIGNED MESSAGE-----
 text message OR based64 message
 
@@ -40,25 +40,25 @@ YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW E=
 -----END DID SIGNATURE-----
     "##).unwrap();
 
-    // for ln in &m.raw_messages {
-    //     println!("{}", ln);
-    // }
-    // println!("=========");
-    // for h in &m.signed_headers {
-    //     println!("::: {} -> {}", h.key, h.value);
-    // }
-    // println!("---------");
-    // for ln in &m.raw_signatures {
-    //     println!("{}", ln);
-    // }
-    // println!("---------");
-    // println!("{:?}", m.signed_signature);
-    // println!("{}", String::from_utf8_lossy(&m.signed_signature.clone().unwrap()));
+        // for ln in &m.raw_messages {
+        //     println!("{}", ln);
+        // }
+        // println!("=========");
+        // for h in &m.signed_headers {
+        //     println!("::: {} -> {}", h.key, h.value);
+        // }
+        // println!("---------");
+        // for ln in &m.raw_signatures {
+        //     println!("{}", ln);
+        // }
+        // println!("---------");
+        // println!("{:?}", m.signed_signature);
+        // println!("{}", String::from_utf8_lossy(&m.signed_signature.clone().unwrap()));
 
-    println!();
-    println!();
+        println!();
+        println!();
 
-    println!("{}", m.as_string());
+        println!("{}", m.as_string());
         Ok(())
     }
 }

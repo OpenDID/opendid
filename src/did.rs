@@ -114,21 +114,21 @@ impl Did {
 // param-name         = 1*pchar
 // param-value        = *pchar
 #[derive(Debug, Clone)]
-pub struct DidKey { // TODO ...
+pub struct DidUrl { // TODO ...
     pub did: Did,
     pub key: String,
 }
 
-impl DidKey {
+impl DidUrl {
 
     pub fn new(did: Did, key: &str) -> Self {
-        DidKey { did, key: key.into(), }
+        DidUrl { did, key: key.into(), }
     }
 
     pub fn parse(did_key: &str) -> Result<Self, DidError> {
         let did_and_key = did_key.split('#').collect::<Vec<_>>();
         if did_and_key.len() != 2 {
-            return Err(DidError::FormatError(format!("DIDKey format error: {}", did_key)));
+            return Err(DidError::FormatError(format!("DIDUrl format error: {}", did_key)));
         }
         let did = Did::parse(did_and_key[0])?;
         let key = did_and_key[1];
