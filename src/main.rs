@@ -10,6 +10,7 @@ mod cmd;
 mod did_resolver;
 mod signed_message_parser;
 mod cmd_default;
+mod cmd_did_document;
 mod cmd_test;
 
 use clap::{ App, Arg, };
@@ -23,11 +24,14 @@ pub use cmd::*;
 pub use did_resolver::*;
 pub use signed_message_parser::*;
 use cmd_default::*;
+use cmd_did_document::*;
 use cmd_test::*;
 
-fn main() -> XResult<()> {
-    let commands = vec![
-        CommandTest{},    
+#[tokio::main]
+async fn main() -> XResult<()> {
+    let commands: Vec<Box<dyn Command>> = vec![
+        Box::new(CommandTest{}),
+        Box::new(CommandDidCocument{}),
     ];
     let mut app = App::new("OpenDID")
                     .version(env!("CARGO_PKG_VERSION"))
@@ -51,6 +55,11 @@ fn main() -> XResult<()> {
             return command.run(&matches, sub_cmd_matches);
         }
     }
+
+    // let did = "did:ccp:3nBPSZU1q6mmxha5Jbg8NcRNGGNt";
+    // let did_document = did_resolver::DidResolver::new_baidu().resolve(did).await?;
+    // let s = storage::Storage::new_default()?;
+    // s.set_did_document(did, &did_document)?;
 
     CommandDefault{}.run(&matches, &matches)
 }

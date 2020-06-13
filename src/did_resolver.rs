@@ -9,6 +9,10 @@ pub struct DidResolver {
 
 impl DidResolver {
 
+    pub fn new_baidu() -> Self {
+        Self::new("https://did.baidu.com/v1/did/resolve/")
+    }
+
     pub fn new(resolver: &str) -> Self {
         let resolver = if resolver.ends_with('/') {
             resolver.into()

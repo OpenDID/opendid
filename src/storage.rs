@@ -31,6 +31,7 @@ impl Storage {
     }
 
     pub fn new(db: Db) -> Self {
+        db.init().ok();
         Self { db, }
     }
 

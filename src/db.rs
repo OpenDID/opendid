@@ -132,7 +132,7 @@ impl Db {
 
     pub fn find_by_key_with_limit(&self, ty: &str, key: &str, limit: usize) -> XResult<Vec<DbEntry>> {
         let mut stmt = self.conn.prepare(
-            "SELECT id, time_created, time_modified, type, key, value FROM entry WHERE type =?1 and key = ?2 order by id asc"
+            "SELECT id, time_created, time_modified, ty, key, value FROM entry WHERE ty =?1 and key = ?2 order by id asc"
         )?;
         let dbentry_iter = stmt.query_map(params![ty, key], |row| {
             Ok(DbEntry {
