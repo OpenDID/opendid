@@ -1,4 +1,5 @@
 use clap::{ ArgMatches, App, };
+use prettytable::Table;
 use crate::util::XResult;
 use crate::cmd::Command;
 use crate::signed_message_parser::DidSignedMessage;
@@ -59,6 +60,11 @@ YWFhYW FhYWFh YWFhYW FhYWFh YWFhYW E=
 
         println!();
         println!();
+
+        let mut t = Table::new();
+        t.set_titles(row![b => "AAAAA", "BBBBBBB", "CCCCCCC"]);
+        t.add_row(row![Fg -> "1111", FR -> "222222", Fy -> "333333"]);
+        t.printstd();
 
         println!("{}", m.as_string());
         Ok(())
