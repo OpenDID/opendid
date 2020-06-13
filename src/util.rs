@@ -2,6 +2,16 @@ use std::env;
 
 pub type XResult<T> = Result<T, Box<dyn std::error::Error>>;
 
+pub fn block_on<F: std::future::Future>(future: F) -> F::Output {
+    use tokio::runtime;
+    let mut rt = runtime::Builder::new()
+        .basic_scheduler()
+        .enable_all()
+        .build()
+        .unwrap();
+    rt.block_on(future)
+}
+
 pub fn get_home_str() -> Option<String> {
     env::var("HOME").ok()
 }
