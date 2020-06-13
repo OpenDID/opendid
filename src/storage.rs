@@ -3,12 +3,14 @@ use crate::util::XResult;
 
 #[derive(Debug, Clone, Copy)]
 pub enum StorageType {
+    DidKey,
     DidDocuemnt,
 }
 
 impl StorageType {
     pub fn ty(&self) -> &'static str {
         match *self {
+            StorageType::DidKey => "did_key",
             StorageType::DidDocuemnt => "did_document",
         }
     }
