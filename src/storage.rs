@@ -50,10 +50,7 @@ impl Storage {
     fn set_entry(&self, storage_type: StorageType, key: &str, value: &str) -> XResult<()> {
         let entry = self.db.find_last_by_key(storage_type.ty(), key)?;
         match entry {
-            None => {
-                let e = DbEntry::new(storage_type.ty(), key, value);
-                self.db.insert(&e)?;
-            },
+            None => self.db.insert(&DbEntry::new(storage_type.ty(), key, value))?,
             Some(mut e) => {
                 e.value = value.to_owned();
                 self.db.update(&e)?;
@@ -62,5 +59,3 @@ impl Storage {
         Ok(())
     }
 }
-
-
