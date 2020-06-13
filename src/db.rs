@@ -6,12 +6,12 @@ const DEFAULT_DB: &str = "~/.opendid.db";
 
 #[derive(Debug)]
 pub struct DbEntry {
-    id: i32,
-    time_created: Timespec,
-    time_modified: Timespec,
-    ty: String,
-    key: String,
-    value: String,
+    pub id: i32,
+    pub time_created: Timespec,
+    pub time_modified: Timespec,
+    pub ty: String,
+    pub key: String,
+    pub value: String,
 }
 
 impl DbEntry {
@@ -70,6 +70,14 @@ impl Db {
         Ok(())
     }
 
+    pub fn update(&self, entry: &DbEntry) -> XResult<()> {
+        self.conn.execute(
+            "UPDATE entry set time_created=?1, time_modified=?2, ty=?3, key=?4, value=?5 where id=?6",
+            params![entry.time_created, time::get_time(), entry.ty, entry.key, entry.value, entry.id]
+        )?;
+        Ok(())
+    }
+
     pub fn insert(&self, entry: &DbEntry) -> XResult<()> {
         self.conn.execute(
             "INSERT INTO entry (time_created, time_modified, ty, key, value) values (?1, ?2, ?3, ?4, ?5)",
@@ -108,9 +116,14 @@ impl Db {
         }
     }
 
-    pub fn find_first_by_key(&self, ty: &str, key: &str) -> XResult<Option<DbEntry>> {
+    pub fn find_last_by_key(&self, ty: &str, key: &str) -> XResult<Option<DbEntry>> {
         let mut entries = self.find_by_key_with_limit(ty, key, 1_usize)?;
         Ok(entries.pop())
+    }
+
+    pub fn find_first_by_key(&self, ty: &str, key: &str) -> XResult<Option<DbEntry>> {
+        let mut entries = self.find_by_key_with_limit(ty, key, 1_usize)?;
+        Ok(if entries.is_empty() { None } else { Some(entries.remove(0)) })
     }
 
     pub fn find_by_key(&self, ty: &str, key: &str) -> XResult<Vec<DbEntry>> {
@@ -119,7 +132,7 @@ impl Db {
 
     pub fn find_by_key_with_limit(&self, ty: &str, key: &str, limit: usize) -> XResult<Vec<DbEntry>> {
         let mut stmt = self.conn.prepare(
-            "SELECT id, time_created, time_modified, type, key, value FROM entry WHERE type =?1 and key = ?2"
+            "SELECT id, time_created, time_modified, type, key, value FROM entry WHERE type =?1 and key = ?2 order by id asc"
         )?;
         let dbentry_iter = stmt.query_map(params![ty, key], |row| {
             Ok(DbEntry {
