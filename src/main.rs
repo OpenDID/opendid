@@ -4,6 +4,7 @@
 
 mod err;
 mod util;
+mod p256k1;
 mod did;
 mod db;
 mod storage;
@@ -18,6 +19,7 @@ use clap::{ App, Arg, };
 
 pub use err::*;
 pub use util::*;
+pub use p256k1::*;
 pub use did::*;
 pub use db::*;
 pub use storage::*;
