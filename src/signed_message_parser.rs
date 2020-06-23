@@ -1,6 +1,8 @@
 // use crate::util::XResult;
 use crate::util::{ encode_block_base64, decode_block_base64, };
 
+const SIGNED_MESSAGE_VERSION: &str = "0.0.1";
+
 const NEW_LINE: &str = "\n";
 const FIVE_MINUS: &str = "-----";
 const BEGIN_DID_MESSAGE: &str = "BEGIN DID SIGNED MESSAGE";
@@ -146,6 +148,67 @@ impl DidSignedMessage {
         ret.push_str(NEW_LINE);
 
         ret
+    }
+}
+
+#[derive(Debug)]
+pub struct DidSignedMessageBuilder {
+    ty: MessageType,
+    message: Option<Vec<u8>>,
+    raw_messages: Option<String>,
+    signed_headers: Vec<Header>,
+    signature: Option<Vec<u8>>,
+}
+
+impl DidSignedMessageBuilder {
+
+    pub fn new_from_bytes(m: &[u8]) -> Self {
+        let s = DidSignedMessageBuilder{
+            ty: MessageType::Base64,
+            message: Some(m.to_vec()),
+            raw_messages: None,
+            signed_headers: vec![],
+            signature: None,
+        };
+        s.default_init()
+    }
+
+    pub fn new_from_str(m: &str) -> Self {
+        let s = DidSignedMessageBuilder{
+            ty: MessageType::PlainText,
+            message: None,
+            raw_messages: Some(m.to_owned()),
+            signed_headers: vec![],
+            signature: None,
+        };
+        s.default_init()
+    }
+
+    pub fn header(mut self, key: &str, value: &str) -> Self {
+        self.signed_headers.push(Header{ key: key.into(), value: value.into(), });
+        self
+    }
+
+    pub fn did(self, did: &str) -> Self {
+        self.header("DID", did) // ? keyid?
+    }
+
+    pub fn comment(self, comments: &str) -> Self {
+        self.header("Comment", comments)
+    }
+
+    pub fn hash(self, hash: &str) -> Self {
+        self.header("Hash", hash)
+    }
+
+    pub fn build() -> Result<DidSignedMessage, String> {
+
+        Err("".into()) // TODO
+    }
+
+    fn default_init(self) -> Self {
+        self.header("Version", SIGNED_MESSAGE_VERSION)
+            .header("Agent", &format!("{} v{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION")))
     }
 }
 

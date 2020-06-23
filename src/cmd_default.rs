@@ -1,23 +1,14 @@
-use clap::{ ArgMatches, App, };
+use clap::ArgMatches;
 use prettytable::Table;
 use crate::util::XResult;
-use crate::cmd::Command;
 use crate::signed_message_parser::DidSignedMessage;
 
 pub struct CommandDefault {
 }
 
-impl Command for CommandDefault {
+impl CommandDefault {
 
-    fn subcommand<'a>(&self) -> Option<App<'a, 'a>> {
-        None
-    }
-
-    fn name(&self) -> &str {
-        ""
-    }
-
-    fn run(&self, arg_matches: &ArgMatches, _: &ArgMatches) -> XResult<()> {
+    pub fn run(&self, arg_matches: &ArgMatches, _: &ArgMatches) -> XResult<()> {
         let verbose_count = arg_matches.occurrences_of("verbose");
         println!("Verbose count: {}", verbose_count);
 
