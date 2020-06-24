@@ -1,5 +1,6 @@
 // use crate::util::XResult;
 use crate::util::{ encode_block_base64, decode_block_base64, };
+use crate::err::DidSignedBuildError;
 
 const SIGNED_MESSAGE_VERSION: &str = "0.0.1";
 
@@ -201,9 +202,24 @@ impl DidSignedMessageBuilder {
         self.header("Hash", hash)
     }
 
-    pub fn build() -> Result<DidSignedMessage, String> {
-
-        Err("".into()) // TODO
+    pub fn build(self) -> Result<DidSignedMessage, DidSignedBuildError> {
+        let mut has_did = false;
+        for header in &self.signed_headers {
+            if header.key == "DID" {
+                has_did = true;
+            }
+        }
+        if !has_did {
+            return Err(DidSignedBuildError::HeaderDidMissError);
+        }
+        Ok(DidSignedMessage { // TODO
+            ty: self.ty,
+            message: None,
+            raw_messages: vec![],
+            signed_headers: self.signed_headers,
+            signed_signature: None,
+            raw_signatures: vec![],
+        })
     }
 
     fn default_init(self) -> Self {
