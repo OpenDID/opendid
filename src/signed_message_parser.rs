@@ -1,6 +1,7 @@
 // use crate::util::XResult;
-use crate::util::{ encode_block_base64, decode_block_base64, };
+use crate::util::{ XResult, encode_block_base64, decode_block_base64, };
 use crate::err::DidSignedBuildError;
+use crate::algo::SignatureSigner;
 
 const SIGNED_MESSAGE_VERSION: &str = "0.0.1";
 
@@ -15,6 +16,11 @@ pub enum MessageType {
     Base64,
     PlainText,
     Unknown,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum SignatureAlgo {
+    Sha256,
 }
 
 #[derive(Debug)]
@@ -205,6 +211,14 @@ impl DidSignedMessageBuilder {
     pub fn signature(mut self, sign: &[u8]) -> Self {
         self.signature = Some(sign.to_vec());
         self
+    }
+
+    pub fn sign<T>(self, sign_algo: SignatureAlgo, signer: &T) -> XResult<Self> where T: SignatureSigner {
+        let message = match sign_algo {
+            SignatureAlgo::Sha256 => "".as_bytes(), // TODO
+        };
+        let signature = signer.sign(message)?;
+        Ok(self.signature(&signature[..]))
     }
 
     pub fn build(self) -> Result<DidSignedMessage, DidSignedBuildError> {

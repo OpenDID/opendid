@@ -44,7 +44,9 @@ impl Command for CommandTest {
         println!("{}", r.as_string());
 
         println!("\n{}\n", ".".repeat(76));
-        let r = crate::signed_message_parser::DidSignedMessageBuilder::new_from_bytes(b"Hello World!")
+        let r = crate::signed_message_parser::DidSignedMessageBuilder::new_from_bytes(
+            (1..100).map(|i| format!("{}", i)).collect::<Vec<_>>().join("").as_bytes()
+        )
             .key_id("did:ccp:3nBPSZU1q6mmxha5Jbg8NcRNGGNt#key-1")
             .hash(&("SHA256-".to_owned() + &hex::encode(&secret_key_bytes)))
             // .hash(&("SHA256-".to_owned() + &base64::encode(&secret_key_bytes)))

@@ -10,6 +10,7 @@ mod db;
 mod storage;
 mod cmd;
 mod did_resolver;
+mod algo;
 mod signed_message_parser;
 mod cmd_default;
 mod cmd_did_document;
