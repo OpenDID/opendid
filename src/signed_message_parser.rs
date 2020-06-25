@@ -212,12 +212,22 @@ impl DidSignedMessageBuilder {
         if !has_did {
             return Err(DidSignedBuildError::HeaderDidMissError);
         }
-        Ok(DidSignedMessage { // TODO
+        let msg = match self.ty {
+            MessageType::Base64 => self.message.map(|m| encode_block_base64(&m, 0, 0)).unwrap_or_else(|| "".to_owned()),
+            MessageType::PlainText => self.raw_messages.unwrap_or_else(|| "".to_owned()),
+            MessageType::Unknown => "!!!ERROR: Type Unknown!".to_owned(),
+        };
+        let raw_messages = msg.lines().map(|ln| ln.to_owned()).collect::<Vec<_>>();
+        let signed_signature = match self.signature {
+            None => return Err(DidSignedBuildError::SignatureMissError),
+            Some(sign) => sign,
+        };
+        Ok(DidSignedMessage {
             ty: self.ty,
             message: None,
-            raw_messages: vec![],
+            raw_messages,
             signed_headers: self.signed_headers,
-            signed_signature: None,
+            signed_signature: Some(signed_signature),
             raw_signatures: vec![],
         })
     }

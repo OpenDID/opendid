@@ -12,6 +12,7 @@ quick_error! {
     #[derive(Debug)]
     pub enum DidSignedBuildError {
         HeaderDidMissError
+        SignatureMissError
     }
 }
 
