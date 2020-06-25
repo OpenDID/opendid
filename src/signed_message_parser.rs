@@ -190,8 +190,8 @@ impl DidSignedMessageBuilder {
         self
     }
 
-    pub fn did(self, did: &str) -> Self {
-        self.header("DID", did) // ? keyid?
+    pub fn key_id(self, did: &str) -> Self {
+        self.header("KeyId", did)
     }
 
     pub fn comment(self, comments: &str) -> Self {
@@ -202,15 +202,20 @@ impl DidSignedMessageBuilder {
         self.header("Hash", hash)
     }
 
+    pub fn signature(mut self, sign: &[u8]) -> Self {
+        self.signature = Some(sign.to_vec());
+        self
+    }
+
     pub fn build(self) -> Result<DidSignedMessage, DidSignedBuildError> {
         let mut has_did = false;
         for header in &self.signed_headers {
-            if header.key == "DID" {
+            if header.key == "KeyId" {
                 has_did = true;
             }
         }
         if !has_did {
-            return Err(DidSignedBuildError::HeaderDidMissError);
+            return Err(DidSignedBuildError::HeaderKeyIdMissError);
         }
         let msg = match self.ty {
             MessageType::Base64 => self.message.map(|m| encode_block_base64(&m, 0, 0)).unwrap_or_else(|| "".to_owned()),

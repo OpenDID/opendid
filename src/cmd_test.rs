@@ -28,9 +28,29 @@ impl Command for CommandTest {
         let k = crate::p256k1::P256k1SecretKey::from_hex("bc60c7fcae1a43947cdff39f9a5b8812025809160cc7f69a73027bae7c105a71")?;
         let sig = k.sign(&message);
         println!("SIG: {}", sig);
+        let sig_b64 = base64::encode(&sig.serialize_der());
+        println!("SIG: {}", sig_b64);
 
         let r = secp.verify(&message, &sig, &public_key).is_ok();
         println!("RESULT: {}", r);
+
+        println!("\n{}\n", ".".repeat(76));
+        let r = crate::signed_message_parser::DidSignedMessageBuilder::new_from_str("hello world")
+            .key_id("did:ccp:3nBPSZU1q6mmxha5Jbg8NcRNGGNt#key-1")
+            // .hash(&("SHA256-".to_owned() + &hex::encode(&secret_key_bytes)))
+            .hash(&("SHA256-".to_owned() + &base64::encode(&secret_key_bytes)))
+            .signature(&hex::decode(&format!("{}", sig))?)
+            .build()?;
+        println!("{}", r.as_string());
+
+        println!("\n{}\n", ".".repeat(76));
+        let r = crate::signed_message_parser::DidSignedMessageBuilder::new_from_bytes(b"Hello World!")
+            .key_id("did:ccp:3nBPSZU1q6mmxha5Jbg8NcRNGGNt#key-1")
+            .hash(&("SHA256-".to_owned() + &hex::encode(&secret_key_bytes)))
+            // .hash(&("SHA256-".to_owned() + &base64::encode(&secret_key_bytes)))
+            .signature(&hex::decode(&format!("{}", sig))?)
+            .build()?;
+        println!("{}", r.as_string());
 
         Ok(())
     }
